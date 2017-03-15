@@ -2,7 +2,6 @@ package app;
 
 import org.junit.Assert;
 import org.junit.Test;
-import util.Tuple;
 
 import java.util.LinkedList;
 import java.util.List;
