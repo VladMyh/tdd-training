@@ -1,8 +1,11 @@
 package app;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,7 +46,7 @@ public class PenaltySeriesTest {
         OneTeamAllGoals(penaltySeries);
 
         String result = penaltySeries.score();
-        String expected = "Team 1 - 3 / Team 2 - 0";
+        String expected = "Series: 1 | Team 1 - 3 / Team 2 - 0";
 
         Assert.assertEquals(expected, result);
     }
@@ -164,7 +167,7 @@ public class PenaltySeriesTest {
         penaltySeries.nextRound();
 
         String test = penaltySeries.score();
-        String expected = "Team 1 - 6 / Team 2 - 5";
+        String expected = "Series: 3 | Team 1 - 6 / Team 2 - 5";
 
         Assert.assertEquals(expected, test);
     }
@@ -197,5 +200,43 @@ public class PenaltySeriesTest {
 
         verify(penaltySeries, times(1)).getPlayersWithoutGoals();
         Assert.assertNotNull(test);
+    }
+
+    @Test
+    public void givenSeriesNumGt7_whenCallingScore_shouldReturnPlayerPrice() throws Exception {
+        PenaltySeries penaltySeries = spy(new PenaltySeries("Team 1", "Team 2"));
+        when(penaltySeries.getCurrentPlayers("Team 1"))
+                .thenReturn(Arrays.asList("name 1", "name 11"));
+        when(penaltySeries.getCurrentPlayers("Team 2"))
+                .thenReturn(Arrays.asList("name 2", "name 22", "name 222"));
+        when(penaltySeries.getPlayerCost(anyString()))
+                .thenReturn(1000);
+
+        equalGame(penaltySeries);
+
+        penaltySeries.nextRound();
+        penaltySeries.addGoalToFirst("name 1");
+        penaltySeries.addGoalToSecond("name 2");
+        penaltySeries.nextRound();
+        penaltySeries.addGoalToFirst("name 1");
+        penaltySeries.addGoalToSecond("name 2");
+        penaltySeries.nextRound();
+        penaltySeries.addGoalToFirst("name 1");
+        penaltySeries.addGoalToSecond("name 2");
+        penaltySeries.nextRound();
+        penaltySeries.addGoalToFirst("name 1");
+        penaltySeries.addGoalToSecond("name 2");
+        penaltySeries.nextRound();
+        penaltySeries.addGoalToFirst("name 1");
+        penaltySeries.addGoalToSecond("name 2");
+        penaltySeries.nextRound();
+
+
+        String test = penaltySeries.score();
+        System.out.println(test);
+        String expected = "Series: 7 | Team 1 - 10 / Team 2 - 10 | " +
+                "Total cost of players that missed: 1000 / 2000";
+
+        Assert.assertThat(test, CoreMatchers.containsString(expected));
     }
 }
